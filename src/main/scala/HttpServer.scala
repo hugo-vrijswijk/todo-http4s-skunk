@@ -7,6 +7,7 @@ import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 import repository.TodoRepository
 import service.TodoService
+import scala.concurrent.ExecutionContext
 
 object HttpServer {
   def create(configFile: String = "application.conf")(implicit contextShift: ContextShift[IO], concurrentEffect: ConcurrentEffect[IO], timer: Timer[IO]): IO[ExitCode] = {
@@ -19,18 +20,18 @@ object HttpServer {
       ec <- ExecutionContexts.fixedThreadPool[IO](config.database.threadPoolSize)
       blocker <- Blocker[IO]
       transactor <- Database.transactor(config.database, ec, blocker)
-    } yield Resources(transactor, config)
+    } yield Resources(transactor, ec, config)
   }
 
   private def create(resources: Resources)(implicit concurrentEffect: ConcurrentEffect[IO], timer: Timer[IO]): IO[ExitCode] = {
     for {
       _ <- Database.initialize(resources.transactor)
       repository = new TodoRepository(resources.transactor)
-      exitCode <- BlazeServerBuilder[IO]
+      exitCode <- BlazeServerBuilder[IO](resources.ec)
         .bindHttp(resources.config.server.port, resources.config.server.host)
         .withHttpApp(new TodoService(repository).routes.orNotFound).serve.compile.lastOrError
     } yield exitCode
   }
 
-  case class Resources(transactor: HikariTransactor[IO], config: Config)
+  case class Resources(transactor: HikariTransactor[IO], ec: ExecutionContext, config: Config)
 }
