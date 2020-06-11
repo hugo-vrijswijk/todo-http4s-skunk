@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  name := "todo http4s doobie",
+  name := "todo http4s skunk",
   version := "1.0-SNAPSHOT",
   scalaVersion := "2.13.2",
   scalacOptions ++= Seq(
@@ -12,9 +12,10 @@ lazy val commonSettings = Seq(
 
 lazy val Http4sVersion = "0.21.4"
 
-lazy val DoobieVersion = "0.9.0"
+lazy val SkunkVersion = "0.0.10"
 
-lazy val H2Version = "1.4.200"
+// Needed for flyway migrations
+lazy val JdbcDriver = "42.2.14"
 
 lazy val FlywayVersion = "6.4.4"
 
@@ -38,10 +39,8 @@ lazy val root = (project in file("."))
       "org.http4s"            %% "http4s-circe"           % Http4sVersion,
       "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
       "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion    % "it,test",
-      "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
-      "org.tpolecat"          %% "doobie-h2"              % DoobieVersion,
-      "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-      "com.h2database"         % "h2"                     % H2Version,
+      "org.tpolecat"          %% "skunk-core"             % SkunkVersion,
+      "org.postgresql"         % "postgresql"             % JdbcDriver,
       "org.flywaydb"           % "flyway-core"            % FlywayVersion,
       "io.circe"              %% "circe-generic"          % CirceVersion,
       "io.circe"              %% "circe-literal"          % CirceVersion     % "it,test",

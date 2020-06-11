@@ -12,7 +12,7 @@ package object model {
     }
   }
 
-  case class Todo(id: Option[Long], description: String, importance: Importance)
+  case class Todo(id: Option[Int], description: String, importance: Importance)
 
   case object TodoNotFoundError
 }

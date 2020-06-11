@@ -1,54 +1,62 @@
 package repository
 
-import cats.effect.IO
-import doobie.util.transactor.Transactor
+import cats.effect.{IO, Resource}
 import fs2.Stream
-import model.{Importance, Todo, TodoNotFoundError}
-import doobie._
-import doobie.implicits._
+import model._
+import queries.TodoQueries
+import skunk._
+import skunk.data.Completion.Delete
 
-class TodoRepository(transactor: Transactor[IO]) {
-  implicit private val importanceMeta: Meta[Importance] = Meta[String].timap(Importance.unsafeFromString)(_.value)
+class TodoRepository(session: Resource[IO, Session[IO]]) extends TodoQueries {
 
-  def getTodos: Stream[IO, Todo] = {
-    sql"SELECT id, description, importance FROM todo".query[Todo].stream.transact(transactor)
-  }
+  def getTodos: Stream[IO, Todo] =
+    for {
+      s  <- Stream.resource(session)
+      ps <- Stream.resource(s.prepare(getTodosQuery))
+      t  <- ps.stream(Void, 128)
+    } yield t
 
-  def getTodo(id: Long): IO[Either[TodoNotFoundError.type, Todo]] = {
-    sql"SELECT id, description, importance FROM todo WHERE id = $id".query[Todo].option.transact(transactor).map {
-      case Some(todo) => Right(todo)
-      case None       => Left(TodoNotFoundError)
+  def getTodo(id: Int): IO[Either[TodoNotFoundError.type, Todo]] = {
+    session.use { s =>
+      s.prepare(getTodoQuery)
+        .use(_.option(id).map {
+          case Some(t) => Right(t)
+          case None    => Left(TodoNotFoundError)
+        })
     }
   }
 
-  def createTodo(todo: Todo): IO[Todo] = {
-    sql"INSERT INTO todo (description, importance) VALUES (${todo.description}, ${todo.importance})".update
-      .withUniqueGeneratedKeys[Long]("id")
-      .transact(transactor)
-      .map { id =>
-        todo.copy(id = Some(id))
-      }
-  }
-
-  def deleteTodo(id: Long): IO[Either[TodoNotFoundError.type, Unit]] = {
-    sql"DELETE FROM todo WHERE id = $id".update.run.transact(transactor).map { affectedRows =>
-      if (affectedRows == 1) {
-        Right(())
-      } else {
-        Left(TodoNotFoundError)
-      }
-    }
-  }
-
-  def updateTodo(id: Long, todo: Todo): IO[Either[TodoNotFoundError.type, Todo]] = {
-    sql"UPDATE todo SET description = ${todo.description}, importance = ${todo.importance} WHERE id = $id".update.run
-      .transact(transactor)
-      .map { affectedRows =>
-        if (affectedRows == 1) {
-          Right(todo.copy(id = Some(id)))
-        } else {
-          Left(TodoNotFoundError)
+  def createTodo(newTodo: Todo): IO[Todo] =
+    session.use { s =>
+      s.prepare(createTodoQuery)
+        .use {
+          _.unique(newTodo)
+            .map(id => newTodo.copy(id = Some(id)))
         }
+    }
+
+  def deleteTodo(id: Int): IO[Either[TodoNotFoundError.type, Unit]] = {
+    session
+      .use { s =>
+        s.prepare(deleteTodoQuery)
+          .use {
+            _.execute(id)
+              .map({
+                case Delete(1) => Right(())
+                case _         => Left(TodoNotFoundError)
+              })
+          }
+      }
+  }
+
+  def updateTodo(id: Int, todo: Todo): IO[Either[TodoNotFoundError.type, Todo]] = {
+    session
+      .use { s =>
+        s.prepare(updateTodoQuery)
+          .use {
+            _.unique(id, todo)
+              .redeem(_ => Left(TodoNotFoundError), id => Right(todo.copy(id = Some(id))))
+          }
       }
   }
 }

@@ -2,32 +2,32 @@ package db
 
 import cats.effect.{Blocker, ContextShift, IO, Resource}
 import config.DatabaseConfig
-import doobie.hikari.HikariTransactor
+import natchez.Trace
 import org.flywaydb.core.Flyway
-
-import scala.concurrent.ExecutionContext
+import skunk.Session
 
 object Database {
-  def transactor(config: DatabaseConfig, executionContext: ExecutionContext, blocker: Blocker)(implicit
-      contextShift: ContextShift[IO]
-  ): Resource[IO, HikariTransactor[IO]] = {
-    HikariTransactor.newHikariTransactor[IO](
-      config.driver,
-      config.url,
-      config.user,
-      config.password,
-      executionContext,
-      blocker
+  def session(config: DatabaseConfig, blocker: Blocker)(implicit
+      contextShift: ContextShift[IO],
+      trace: Trace[IO]
+  ): Resource[IO, Resource[IO, Session[IO]]] = {
+    Session.pooled[IO](
+      host = config.host,
+      port = config.port,
+      database = config.database,
+      user = config.user,
+      password = Some(config.password),
+      max = config.threadPoolSize
     )
   }
 
-  def initialize(transactor: HikariTransactor[IO]): IO[Unit] = {
-    transactor.configure { dataSource =>
-      IO {
-        val flyWay = Flyway.configure().dataSource(dataSource).load()
-        flyWay.migrate()
-        ()
-      }
+  def initialize(config: DatabaseConfig): IO[Unit] = {
+    IO {
+      val url = s"jdbc:postgresql://${config.host}:${config.port}/${config.database}"
+
+      val flyWay = Flyway.configure().dataSource(url, config.user, config.password).load()
+      flyWay.migrate()
+      ()
     }
   }
 }

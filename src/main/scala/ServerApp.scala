@@ -1,3 +1,5 @@
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import cats.effect.{ExitCode, IO, IOApp}
 
 object ServerApp extends IOApp {

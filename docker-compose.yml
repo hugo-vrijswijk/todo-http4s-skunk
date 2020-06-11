@@ -1,0 +1,11 @@
+version: "3"
+services:
+  # main instance for testing
+  postgres:
+    image: postgres:11
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: jimmy
+      POSTGRES_PASSWORD: bananas
+      POSTGRES_DB: world
