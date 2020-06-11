@@ -16,9 +16,9 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Eventually {
-  private implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+  implicit private val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 
-  private implicit val contextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  implicit private val contextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   private lazy val client = BlazeClientBuilder[IO](global).resource
 
@@ -28,7 +28,8 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
   private lazy val urlStart = s"http://${config.server.host}:${config.server.port}"
 
-  implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = scaled(Span(5, Seconds)), interval = scaled(Span(100, Millis)))
+  implicit override val patienceConfig: PatienceConfig =
+    PatienceConfig(timeout = scaled(Span(5, Seconds)), interval = scaled(Span(100, Millis)))
 
   override def beforeAll(): Unit = {
     HttpServer.create(configFile).unsafeRunAsyncAndForget()
@@ -41,14 +42,15 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
   "Todo server" should {
     "create a todo" in {
       val description = "my todo 1"
-      val importance = "high"
-      val createJson =json"""
+      val importance  = "high"
+      val createJson  = json"""
         {
           "description": $description,
           "importance": $importance
         }"""
-      val request = Request[IO](method = Method.POST, uri = Uri.unsafeFromString(s"$urlStart/todos")).withEntity(createJson)
-      val json = client.use(_.expect[Json](request)).unsafeRunSync()
+      val request     =
+        Request[IO](method = Method.POST, uri = Uri.unsafeFromString(s"$urlStart/todos")).withEntity(createJson)
+      val json        = client.use(_.expect[Json](request)).unsafeRunSync()
       root.id.long.getOption(json).nonEmpty shouldBe true
       root.description.string.getOption(json) shouldBe Some(description)
       root.importance.string.getOption(json) shouldBe Some(importance)
@@ -58,13 +60,14 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
       val id = createTodo("my todo 2", "low")
 
       val description = "updated todo"
-      val importance = "medium"
-      val updateJson = json"""
+      val importance  = "medium"
+      val updateJson  = json"""
         {
           "description": $description,
           "importance": $importance
         }"""
-      val request = Request[IO](method = Method.PUT, uri = Uri.unsafeFromString(s"$urlStart/todos/$id")).withEntity(updateJson)
+      val request     =
+        Request[IO](method = Method.PUT, uri = Uri.unsafeFromString(s"$urlStart/todos/$id")).withEntity(updateJson)
       client.use(_.expect[Json](request)).unsafeRunSync() shouldBe json"""
         {
           "id": $id,
@@ -75,8 +78,8 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
     "return a single todo" in {
       val description = "my todo 3"
-      val importance = "medium"
-      val id = createTodo(description, importance)
+      val importance  = "medium"
+      val id          = createTodo(description, importance)
       client.use(_.expect[Json](Uri.unsafeFromString(s"$urlStart/todos/$id"))).unsafeRunSync() shouldBe json"""
         {
           "id": $id,
@@ -86,9 +89,9 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     }
 
     "delete a todo" in {
-      val description = "my todo 4"
-      val importance = "low"
-      val id = createTodo(description, importance)
+      val description   = "my todo 4"
+      val importance    = "low"
+      val id            = createTodo(description, importance)
       val deleteRequest = Request[IO](method = Method.DELETE, uri = Uri.unsafeFromString(s"$urlStart/todos/$id"))
       client.use(_.status(deleteRequest)).unsafeRunSync() shouldBe Status.NoContent
 
@@ -107,10 +110,10 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
       // Add new todos
       val description1 = "my todo 1"
       val description2 = "my todo 2"
-      val importance1 = "high"
-      val importance2 = "low"
-      val id1 = createTodo(description1, importance1)
-      val id2 = createTodo(description2, importance2)
+      val importance1  = "high"
+      val importance2  = "low"
+      val id1          = createTodo(description1, importance1)
+      val id2          = createTodo(description2, importance2)
 
       // Retrieve todos
       client.use(_.expect[Json](Uri.unsafeFromString(s"$urlStart/todos"))).unsafeRunSync shouldBe json"""
@@ -135,8 +138,9 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
         "description": $description,
         "importance": $importance
       }"""
-    val request = Request[IO](method = Method.POST, uri = Uri.unsafeFromString(s"$urlStart/todos")).withEntity(createJson)
-    val json = client.use(_.expect[Json](request)).unsafeRunSync()
+    val request    =
+      Request[IO](method = Method.POST, uri = Uri.unsafeFromString(s"$urlStart/todos")).withEntity(createJson)
+    val json       = client.use(_.expect[Json](request)).unsafeRunSync()
     root.id.long.getOption(json).nonEmpty shouldBe true
     root.id.long.getOption(json).get
   }

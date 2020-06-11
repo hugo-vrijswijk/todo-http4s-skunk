@@ -8,7 +8,9 @@ import org.flywaydb.core.Flyway
 import scala.concurrent.ExecutionContext
 
 object Database {
-  def transactor(config: DatabaseConfig, executionContext: ExecutionContext, blocker: Blocker)(implicit contextShift: ContextShift[IO]): Resource[IO, HikariTransactor[IO]] = {
+  def transactor(config: DatabaseConfig, executionContext: ExecutionContext, blocker: Blocker)(implicit
+      contextShift: ContextShift[IO]
+  ): Resource[IO, HikariTransactor[IO]] = {
     HikariTransactor.newHikariTransactor[IO](
       config.driver,
       config.url,
