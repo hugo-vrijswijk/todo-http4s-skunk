@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   name := "todo http4s skunk",
   version := "1.0-SNAPSHOT",
-  scalaVersion := "2.13.2",
+  scalaVersion := "2.13.3",
   scalacOptions ++= Seq(
     "-deprecation",
     "-Xfatal-warnings",
@@ -10,24 +10,24 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val Http4sVersion = "0.21.5"
+lazy val Http4sVersion = "0.21.6"
 
-lazy val SkunkVersion = "0.0.11"
+lazy val SkunkVersion = "0.0.15"
 
 // Needed for flyway migrations
 lazy val JdbcDriver = "42.2.14"
 
-lazy val FlywayVersion = "6.4.4"
+lazy val FlywayVersion = "6.5.3"
 
 lazy val CirceVersion = "0.13.0"
 
-lazy val PureConfigVersion = "0.12.3"
+lazy val PureConfigVersion = "0.13.0"
 
 lazy val LogbackVersion = "1.2.3"
 
 lazy val ScalaTestVersion = "3.2.0"
 
-lazy val ScalaMockVersion = "4.4.0"
+lazy val ScalaMockVersion = "5.0.0"
 
 lazy val root = (project in file("."))
   .configs(IntegrationTest)
