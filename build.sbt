@@ -10,14 +10,14 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val Http4sVersion = "0.21.6"
+lazy val Http4sVersion = "0.21.7"
 
-lazy val SkunkVersion = "0.0.15"
+lazy val SkunkVersion = "0.0.18"
 
 // Needed for flyway migrations
-lazy val JdbcDriver = "42.2.14"
+lazy val JdbcDriver = "42.2.16"
 
-lazy val FlywayVersion = "6.5.3"
+lazy val FlywayVersion = "6.5.5"
 
 lazy val CirceVersion = "0.13.0"
 
@@ -25,7 +25,7 @@ lazy val PureConfigVersion = "0.13.0"
 
 lazy val LogbackVersion = "1.2.3"
 
-lazy val ScalaTestVersion = "3.2.0"
+lazy val ScalaTestVersion = "3.2.2"
 
 lazy val ScalaMockVersion = "5.0.0"
 
