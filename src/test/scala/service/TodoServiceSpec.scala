@@ -21,15 +21,15 @@ class TodoServiceSpec extends AnyWordSpec with MockFactory with Matchers {
 
   "TodoService" should {
     "create a todo" in {
-      val id         = 1
-      val todo       = Todo(None, "my todo", Low)
+      val id = 1
+      val todo = Todo(None, "my todo", Low)
       (repository.createTodo _).when(todo).returns(IO.pure(todo.copy(id = Some(id))))
       val createJson = json"""
         {
           "description": ${todo.description},
           "importance": ${todo.importance.value}
         }"""
-      val response   = serve(Request[IO](POST, uri"/todos").withEntity(createJson))
+      val response = serve(Request[IO](POST, uri"/todos").withEntity(createJson))
       response.status shouldBe Status.Created
       response.as[Json].unsafeRunSync() shouldBe json"""
         {
@@ -40,8 +40,8 @@ class TodoServiceSpec extends AnyWordSpec with MockFactory with Matchers {
     }
 
     "update a todo" in {
-      val id         = 1
-      val todo       = Todo(None, "updated todo", Medium)
+      val id = 1
+      val todo = Todo(None, "updated todo", Medium)
       (repository.updateTodo _).when(id, todo).returns(IO.pure(Right(todo.copy(id = Some(id)))))
       val updateJson = json"""
         {
@@ -60,7 +60,7 @@ class TodoServiceSpec extends AnyWordSpec with MockFactory with Matchers {
     }
 
     "return a single todo" in {
-      val id   = 1
+      val id = 1
       val todo = Todo(Some(id), "my todo", High)
       (repository.getTodo _).when(id).returns(IO.pure(Right(todo)))
 
@@ -75,9 +75,9 @@ class TodoServiceSpec extends AnyWordSpec with MockFactory with Matchers {
     }
 
     "return all todos" in {
-      val id1   = 1
+      val id1 = 1
       val todo1 = Todo(Some(id1), "my todo 1", High)
-      val id2   = 2
+      val id2 = 2
       val todo2 = Todo(Some(id2), "my todo 2", Medium)
       val todos = Stream(todo1, todo2)
       (() => repository.getTodos).when().returns(todos)
