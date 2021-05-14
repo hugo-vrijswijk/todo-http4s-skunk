@@ -13,8 +13,11 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import repository.TodoRepository
+import cats.effect.unsafe.IORuntime
 
 class TodoServiceSpec extends AnyWordSpec with MockFactory with Matchers {
+  implicit val ioRuntime = IORuntime.global
+
   private val repository = stub[TodoRepository]
 
   private val service = new TodoService(repository).routes

@@ -1,5 +1,3 @@
-import scala.concurrent.ExecutionContext
-
 import cats.effect._
 import config.Config
 import db.Database
@@ -9,30 +7,26 @@ import org.http4s.server.blaze._
 import repository.TodoRepository
 import service.TodoService
 import skunk.Session
-import cats.effect.{ Resource, Temporal }
+
+import scala.concurrent.ExecutionContext
 
 object HttpServer {
   def create(
       configFile: String = "application.conf"
-  )(implicit
-      concurrentEffect: ConcurrentEffect[IO],
-      timer: Temporal[IO],
-      ec: ExecutionContext
-  ): IO[ExitCode] = {
+  )(implicit ec: ExecutionContext): IO[ExitCode] = {
     resources(configFile).use(create)
   }
 
   private def resources(configFile: String): Resource[IO, Resources] = {
     for {
       config  <- Config.load(configFile)
-      blocker <- Resource.unit[IO]
-      session <- Database.session(config.database, blocker)
+      session <- Database.session(config.database)
     } yield Resources(session, config)
   }
 
   private def create(
       resources: Resources
-  )(implicit concurrentEffect: ConcurrentEffect[IO], timer: Temporal[IO], ec: ExecutionContext): IO[ExitCode] = {
+  )(implicit ec: ExecutionContext): IO[ExitCode] = {
     for {
       _         <- Database.initialize(resources.config.database)
       repository = new TodoRepository(resources.sessionResource)

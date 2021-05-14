@@ -1,8 +1,10 @@
-import cats.effect.{ContextShift, IO, Timer}
+import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import config.Config
 import io.circe.Json
 import io.circe.literal._
 import io.circe.optics.JsonPath._
+import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.{Method, Request, Status, Uri}
@@ -13,14 +15,12 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Eventually {
-  implicit private val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 
-  implicit private val contextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-
-  private lazy val client = BlazeClientBuilder[IO](global).resource
+  implicit val ec         = ExecutionContext.global
+  implicit val ioRuntime  = IORuntime.global
+  private lazy val client = BlazeClientBuilder[IO](ExecutionContext.global).resource
 
   private val configFile = "test.conf"
 
@@ -32,7 +32,7 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     PatienceConfig(timeout = scaled(Span(5, Seconds)), interval = scaled(Span(100, Millis)))
 
   override def beforeAll(): Unit = {
-    HttpServer.create(configFile).unsafeRunAsyncAndForget()
+    HttpServer.create(configFile).unsafeRunAndForget()
     eventually {
       client.use(_.statusFromUri(Uri.unsafeFromString(s"$urlStart/todos"))).unsafeRunSync() shouldBe Status.Ok
     }

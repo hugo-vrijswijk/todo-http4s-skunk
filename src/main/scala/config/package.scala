@@ -19,10 +19,7 @@ package object config {
   case class Config(server: ServerConfig, database: DatabaseConfig)
 
   object Config {
-    def load(configFile: String = "application.conf"): Resource[IO, Config] = {
-      Resource.unit[IO].flatMap { blocker =>
-        Resource.eval(ConfigSource.fromConfig(ConfigFactory.load(configFile)).loadF[IO, Config](blocker))
-      }
-    }
+    def load(configFile: String = "application.conf"): Resource[IO, Config] =
+      Resource.eval(ConfigSource.fromConfig(ConfigFactory.load(configFile)).loadF[IO, Config]())
   }
 }

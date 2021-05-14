@@ -10,7 +10,7 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val Http4sVersion = "0.21.22"
+lazy val Http4sVersion = "1.0.0-M21"
 
 lazy val SkunkVersion = "0.1.1"
 
@@ -19,7 +19,7 @@ lazy val JdbcDriver = "42.2.20"
 
 lazy val FlywayVersion = "7.5.4"
 
-lazy val CirceVersion = "0.13.0"
+lazy val CirceVersion = "0.14.0-M6"
 
 lazy val PureConfigVersion = "0.15.0"
 
@@ -50,7 +50,7 @@ lazy val root = (project in file("."))
       "org.flywaydb"           % "flyway-core"            % FlywayVersion,
       "io.circe"              %% "circe-generic"          % CirceVersion,
       "io.circe"              %% "circe-literal"          % CirceVersion     % "it,test",
-      "io.circe"              %% "circe-optics"           % CirceVersion     % "it",
+      "io.circe"              %% "circe-optics"           % "0.13.0"         % "it",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
       "ch.qos.logback"         % "logback-classic"        % LogbackVersion,
