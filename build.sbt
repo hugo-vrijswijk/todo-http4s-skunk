@@ -23,7 +23,7 @@ lazy val CirceVersion = "0.13.0"
 
 lazy val PureConfigVersion = "0.13.0"
 
-lazy val CatsEffectVersion = "2.5.1"
+lazy val CatsEffectVersion = "3.1.1"
 
 lazy val Fs2Version = "2.5.6"
 
