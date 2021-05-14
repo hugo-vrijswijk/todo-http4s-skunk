@@ -10,7 +10,7 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val Http4sVersion = "0.21.7"
+lazy val Http4sVersion = "0.21.22"
 
 lazy val SkunkVersion = "0.0.18"
 
