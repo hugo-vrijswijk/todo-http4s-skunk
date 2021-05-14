@@ -1,5 +1,3 @@
-import scala.concurrent.ExecutionContext
-
 import cats.effect._
 import config.Config
 import db.Database
@@ -10,29 +8,25 @@ import repository.TodoRepository
 import service.TodoService
 import skunk.Session
 
+import scala.concurrent.ExecutionContext
+
 object HttpServer {
   def create(
       configFile: String = "application.conf"
-  )(implicit
-      contextShift: ContextShift[IO],
-      concurrentEffect: ConcurrentEffect[IO],
-      timer: Timer[IO],
-      ec: ExecutionContext
-  ): IO[ExitCode] = {
+  )(implicit ec: ExecutionContext): IO[ExitCode] = {
     resources(configFile).use(create)
   }
 
-  private def resources(configFile: String)(implicit contextShift: ContextShift[IO]): Resource[IO, Resources] = {
+  private def resources(configFile: String): Resource[IO, Resources] = {
     for {
       config  <- Config.load(configFile)
-      blocker <- Blocker[IO]
-      session <- Database.session(config.database, blocker)
+      session <- Database.session(config.database)
     } yield Resources(session, config)
   }
 
   private def create(
       resources: Resources
-  )(implicit concurrentEffect: ConcurrentEffect[IO], timer: Timer[IO], ec: ExecutionContext): IO[ExitCode] = {
+  )(implicit ec: ExecutionContext): IO[ExitCode] = {
     for {
       _         <- Database.initialize(resources.config.database)
       repository = new TodoRepository(resources.sessionResource)
