@@ -12,7 +12,7 @@ lazy val commonSettings = Seq(
 
 lazy val Http4sVersion = "0.21.7"
 
-lazy val SkunkVersion = "0.0.18"
+lazy val SkunkVersion = "0.0.26"
 
 // Needed for flyway migrations
 lazy val JdbcDriver = "42.2.20"
