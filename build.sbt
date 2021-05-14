@@ -21,7 +21,7 @@ lazy val FlywayVersion = "7.5.4"
 
 lazy val CirceVersion = "0.13.0"
 
-lazy val PureConfigVersion = "0.13.0"
+lazy val PureConfigVersion = "0.15.0"
 
 lazy val CatsEffectVersion = "3.1.1"
 
