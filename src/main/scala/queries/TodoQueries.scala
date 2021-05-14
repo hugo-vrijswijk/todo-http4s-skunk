@@ -13,8 +13,8 @@ trait TodoQueries extends _root_.codec.TodoCodec {
   val createTodoQuery: Query[Todo, Int] =
     sql"INSERT INTO todo (description, importance) VALUES ($description,  $importance) RETURNING id"
       .query(id)
-      .contramap {
-        case Todo(_, d, i) => d ~ i
+      .contramap { case Todo(_, d, i) =>
+        d ~ i
       }
 
   val deleteTodoQuery: Command[Int] = sql"DELETE FROM todo WHERE id = $id".command
@@ -22,7 +22,7 @@ trait TodoQueries extends _root_.codec.TodoCodec {
   val updateTodoQuery: Query[Int ~ Todo, Int] =
     sql"UPDATE todo SET description = $description, importance = $importance WHERE id = $id RETURNING id"
       .query(id)
-      .contramap {
-        case id ~ Todo(_, d, i) => d ~ i ~ id
+      .contramap { case id ~ Todo(_, d, i) =>
+        d ~ i ~ id
       }
 }

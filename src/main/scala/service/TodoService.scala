@@ -19,16 +19,16 @@ class TodoService(repository: TodoRepository) extends Http4sDsl[IO] {
 
   val baseRoute = "todos"
   val routes    = HttpRoutes.of[IO] {
-    case GET -> Root / `baseRoute`                    =>
+    case GET -> Root / `baseRoute` =>
       Ok(repository.getTodos.map(_.asJson))
 
-    case GET -> Root / `baseRoute` / IntVar(id)       =>
+    case GET -> Root / `baseRoute` / IntVar(id) =>
       for {
         getResult <- repository.getTodo(id)
         response  <- todoResult(getResult)
       } yield response
 
-    case req @ POST -> Root / `baseRoute`             =>
+    case req @ POST -> Root / `baseRoute` =>
       for {
         todo        <- req.decodeJson[Todo]
         createdTodo <- repository.createTodo(todo)
@@ -42,7 +42,7 @@ class TodoService(repository: TodoRepository) extends Http4sDsl[IO] {
         response     <- todoResult(updateResult)
       } yield response
 
-    case DELETE -> Root / `baseRoute` / IntVar(id)    =>
+    case DELETE -> Root / `baseRoute` / IntVar(id) =>
       repository.deleteTodo(id).flatMap {
         case Left(TodoNotFoundError) => NotFound()
         case Right(_)                => NoContent()
