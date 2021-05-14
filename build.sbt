@@ -23,6 +23,10 @@ lazy val CirceVersion = "0.13.0"
 
 lazy val PureConfigVersion = "0.13.0"
 
+lazy val CatsEffectVersion = "2.5.1"
+
+lazy val Fs2Version = "2.5.6"
+
 lazy val LogbackVersion = "1.2.3"
 
 lazy val ScalaTestVersion = "3.2.9"
@@ -35,6 +39,8 @@ lazy val root = (project in file("."))
     commonSettings,
     Defaults.itSettings,
     libraryDependencies ++= Seq(
+      "org.typelevel"         %% "cats-effect"            % CatsEffectVersion,
+      "co.fs2"                %% "fs2-core"               % Fs2Version,
       "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
       "org.http4s"            %% "http4s-circe"           % Http4sVersion,
       "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
