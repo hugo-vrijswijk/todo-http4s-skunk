@@ -9,30 +9,30 @@ import org.http4s.server.blaze._
 import repository.TodoRepository
 import service.TodoService
 import skunk.Session
+import cats.effect.{ Resource, Temporal }
 
 object HttpServer {
   def create(
       configFile: String = "application.conf"
   )(implicit
-      contextShift: ContextShift[IO],
       concurrentEffect: ConcurrentEffect[IO],
-      timer: Timer[IO],
+      timer: Temporal[IO],
       ec: ExecutionContext
   ): IO[ExitCode] = {
     resources(configFile).use(create)
   }
 
-  private def resources(configFile: String)(implicit contextShift: ContextShift[IO]): Resource[IO, Resources] = {
+  private def resources(configFile: String): Resource[IO, Resources] = {
     for {
       config  <- Config.load(configFile)
-      blocker <- Blocker[IO]
+      blocker <- Resource.unit[IO]
       session <- Database.session(config.database, blocker)
     } yield Resources(session, config)
   }
 
   private def create(
       resources: Resources
-  )(implicit concurrentEffect: ConcurrentEffect[IO], timer: Timer[IO], ec: ExecutionContext): IO[ExitCode] = {
+  )(implicit concurrentEffect: ConcurrentEffect[IO], timer: Temporal[IO], ec: ExecutionContext): IO[ExitCode] = {
     for {
       _         <- Database.initialize(resources.config.database)
       repository = new TodoRepository(resources.sessionResource)

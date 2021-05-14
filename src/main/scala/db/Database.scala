@@ -1,14 +1,13 @@
 package db
 
-import cats.effect.{Blocker, ContextShift, IO, Resource}
+import cats.effect.{IO, Resource}
 import config.DatabaseConfig
 import natchez.Trace
 import org.flywaydb.core.Flyway
 import skunk.Session
 
 object Database {
-  def session(config: DatabaseConfig, blocker: Blocker)(implicit
-      contextShift: ContextShift[IO],
+  def session(config: DatabaseConfig)(implicit
       trace: Trace[IO]
   ): Resource[IO, Resource[IO, Session[IO]]] = {
     Session.pooled[IO](
