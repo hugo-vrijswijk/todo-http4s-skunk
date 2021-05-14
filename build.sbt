@@ -25,7 +25,7 @@ lazy val PureConfigVersion = "0.13.0"
 
 lazy val CatsEffectVersion = "2.5.1"
 
-lazy val Fs2Version = "2.5.6"
+lazy val Fs2Version = "3.0.3"
 
 lazy val LogbackVersion = "1.2.3"
 
