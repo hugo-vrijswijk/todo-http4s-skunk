@@ -19,7 +19,7 @@ lazy val JdbcDriver = "42.2.20"
 
 lazy val FlywayVersion = "7.9.0"
 
-lazy val CirceVersion = "0.14.0-M6"
+lazy val CirceVersion = "0.14.0-M7"
 
 lazy val PureConfigVersion = "0.15.0"
 
