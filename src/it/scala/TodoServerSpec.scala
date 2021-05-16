@@ -3,7 +3,6 @@ import cats.effect.unsafe.IORuntime
 import config.Config
 import io.circe.Json
 import io.circe.literal._
-import io.circe.optics.JsonPath._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.client.blaze.BlazeClientBuilder
@@ -50,10 +49,11 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
         }"""
       val request     =
         Request[IO](method = Method.POST, uri = Uri.unsafeFromString(s"$urlStart/todos")).withEntity(createJson)
-      val json        = client.use(_.expect[Json](request)).unsafeRunSync()
-      root.id.long.getOption(json).nonEmpty shouldBe true
-      root.description.string.getOption(json) shouldBe Some(description)
-      root.importance.string.getOption(json) shouldBe Some(importance)
+      val json        = client.use(_.expect[Json](request)).unsafeRunSync().hcursor
+
+      json.downField("id").as[Long].isRight shouldBe true
+      json.downField("description").as[String].toOption shouldBe Some(description)
+      json.downField("importance").as[String].toOption shouldBe Some(importance)
     }
 
     "update a todo" in {
@@ -101,8 +101,10 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
 
     "return all todos" in {
       // Remove all existing todos
-      val json = client.use(_.expect[Json](Uri.unsafeFromString(s"$urlStart/todos"))).unsafeRunSync()
-      root.each.id.long.getAll(json).foreach { id =>
+      val json     = client.use(_.expect[Json](Uri.unsafeFromString(s"$urlStart/todos"))).unsafeRunSync()
+      val noSpaces = json.noSpaces
+      println(noSpaces)
+      json.asArray.get.map(_.hcursor.downField("id").as[Long].getOrElse(fail())).foreach { id =>
         val deleteRequest = Request[IO](method = Method.DELETE, uri = Uri.unsafeFromString(s"$urlStart/todos/$id"))
         client.use(_.status(deleteRequest)).unsafeRunSync() shouldBe Status.NoContent
       }
@@ -141,7 +143,7 @@ class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll wi
     val request    =
       Request[IO](method = Method.POST, uri = Uri.unsafeFromString(s"$urlStart/todos")).withEntity(createJson)
     val json       = client.use(_.expect[Json](request)).unsafeRunSync()
-    root.id.long.getOption(json).nonEmpty shouldBe true
-    root.id.long.getOption(json).get
+
+    json.hcursor.downField("id").as[Long].getOrElse(fail(s"field id not found in json ${json.noSpaces}"))
   }
 }

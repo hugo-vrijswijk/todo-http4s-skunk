@@ -4,9 +4,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.13.5",
   scalacOptions ++= Seq(
     "-deprecation",
-    "-Xfatal-warnings",
-    "-Ywarn-value-discard",
-    "-Xlint:missing-interpolator"
+    "-Xfatal-warnings"
   )
 )
 
@@ -50,7 +48,6 @@ lazy val root = (project in file("."))
       "org.flywaydb"           % "flyway-core"            % FlywayVersion,
       "io.circe"              %% "circe-generic"          % CirceVersion,
       "io.circe"              %% "circe-literal"          % CirceVersion     % "it,test",
-      "io.circe"              %% "circe-optics"           % "0.13.0"         % "it",
       "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
       "ch.qos.logback"         % "logback-classic"        % LogbackVersion,
