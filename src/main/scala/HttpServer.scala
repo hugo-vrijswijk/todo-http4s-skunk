@@ -2,8 +2,8 @@ import cats.effect._
 import config.Config
 import db.Database
 import natchez.Trace.Implicits.noop
+import org.http4s.blaze.server._
 import org.http4s.implicits._
-import org.http4s.server.blaze._
 import repository.TodoRepository
 import service.TodoService
 import skunk.Session
