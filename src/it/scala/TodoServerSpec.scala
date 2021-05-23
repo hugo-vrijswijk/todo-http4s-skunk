@@ -4,8 +4,8 @@ import config.Config
 import io.circe.Json
 import io.circe.literal._
 import io.circe.syntax._
+import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.circe._
-import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.{Method, Request, Status, Uri}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.Eventually
