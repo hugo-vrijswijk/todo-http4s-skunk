@@ -4,7 +4,7 @@ import config.Config
 import io.circe.Json
 import io.circe.literal._
 import io.circe.syntax._
-import org.http4s.blaze.client.BlazeClientBuilder
+import org.http4s.ember.client.EmberClientBuilder
 import org.http4s.circe._
 import org.http4s.{Method, Request, Status, Uri}
 import org.scalatest.BeforeAndAfterAll
@@ -13,13 +13,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 
-import scala.concurrent.ExecutionContext
-
 class TodoServerSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll with Eventually {
 
-  implicit val ec         = ExecutionContext.global
   implicit val ioRuntime  = IORuntime.global
-  private lazy val client = BlazeClientBuilder[IO](ExecutionContext.global).resource
+  private lazy val client = EmberClientBuilder.default[IO].build
 
   private val configFile = "test.conf"
 

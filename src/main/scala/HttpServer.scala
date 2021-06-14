@@ -1,20 +1,18 @@
 import cats.effect._
+import com.comcast.ip4s.{Host, Port}
 import config.Config
 import db.Database
 import natchez.Trace.Implicits.noop
-import org.http4s.blaze.server._
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits._
+import org.http4s.server.Server
 import repository.TodoRepository
 import service.TodoService
 import skunk.Session
 
-import scala.concurrent.ExecutionContext
-
 object HttpServer {
-  def create(
-      configFile: String = "application.conf"
-  )(implicit ec: ExecutionContext): IO[ExitCode] = {
-    resources(configFile).use(create)
+  def create(configFile: String = "application.conf"): IO[Unit] = {
+    resources(configFile).flatMap(create).use(_ => IO.never)
   }
 
   private def resources(configFile: String): Resource[IO, Resources] = {
@@ -24,19 +22,17 @@ object HttpServer {
     } yield Resources(session, config)
   }
 
-  private def create(
-      resources: Resources
-  )(implicit ec: ExecutionContext): IO[ExitCode] = {
+  private def create(resources: Resources): Resource[IO, Server] = {
     for {
-      _         <- Database.initialize(resources.config.database)
+      _         <- Resource.eval(Database.initialize(resources.config.database))
       repository = new TodoRepository(resources.sessionResource)
-      exitCode  <- BlazeServerBuilder[IO](ec)
-                     .bindHttp(resources.config.server.port, resources.config.server.host)
+      server    <- EmberServerBuilder
+                     .default[IO]
+                     .withPort(resources.config.server.port)
+                     .withHost(resources.config.server.host)
                      .withHttpApp(new TodoService(repository).routes.orNotFound)
-                     .serve
-                     .compile
-                     .lastOrError
-    } yield exitCode
+                     .build
+    } yield server
   }
 
   case class Resources(sessionResource: Resource[IO, Session[IO]], config: Config)

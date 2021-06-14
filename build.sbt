@@ -39,10 +39,10 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.typelevel"         %% "cats-effect"            % CatsEffectVersion,
       "co.fs2"                %% "fs2-core"               % Fs2Version,
-      "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
+      "org.http4s"            %% "http4s-ember-server"    % Http4sVersion,
       "org.http4s"            %% "http4s-circe"           % Http4sVersion,
       "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
-      "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion    % "it,test",
+      "org.http4s"            %% "http4s-ember-client"    % Http4sVersion    % "it,test",
       "org.tpolecat"          %% "skunk-core"             % SkunkVersion,
       "org.postgresql"         % "postgresql"             % JdbcDriver,
       "org.flywaydb"           % "flyway-core"            % FlywayVersion,
