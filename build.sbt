@@ -15,7 +15,7 @@ lazy val SkunkVersion = "0.2.0"
 // Needed for flyway migrations
 lazy val JdbcDriver = "42.2.20"
 
-lazy val FlywayVersion = "7.11.0"
+lazy val FlywayVersion = "7.11.1"
 
 lazy val CirceVersion = "0.14.1"
 
